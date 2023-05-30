@@ -19,6 +19,11 @@
     #include <hex/gl/render/GLRenderer.hpp>
 #endif /// !HEX_GL_RENDERER_HPP
 
+// Include hex::core::IRendererListener
+#ifndef HEX_CORE_I_RENDERER_LISTENER_HXX
+    #include <hex/core/render/IRendererListener.hxx>
+#endif /// !HEX_CORE_I_RENDERER_LISTENER_HXX
+
 #ifdef HEX_LOGGING // LOG
 
     // Include hex::core::debug
@@ -46,7 +51,8 @@ namespace hex
 
         GLRenderer::GLRenderer()
             :
-            RenderSystem()
+            RenderSystem(),
+            mIsFirstFrame(true)
         {
 #ifdef HEX_LOGGING // LOG
             hexLog::Debug("GLRenderer::constructor");
@@ -84,6 +90,32 @@ namespace hex
 
         void GLRenderer::Draw()
         {
+            size_t listenerIndex(0);
+
+            mIsFirstFrame = false;
+            auto listener_ptr(getNextListener(listenerIndex));
+            while (listener_ptr.get())
+            {
+                try
+                {
+                    if (mIsFirstFrame)
+                        listener_ptr->onRenderReady();
+
+                    listener_ptr->onRender();
+                }
+                catch (const std::exception& exc)
+                {
+                    listener_ptr->onRenderError(exc); // Copy exception
+                }
+                catch (...)
+                {
+                    std::exception err("GLRenderer::Draw: unknown error");
+                    listener_ptr->onRenderError(std::move(err));
+                }
+
+                listenerIndex++;
+                listener_ptr = getNextListener(listenerIndex).get();
+            }
         }
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
