@@ -19,6 +19,15 @@
     #include <hex/gl/assets/GLProgram.hpp>
 #endif /// !HEX_GL_PROGRAM_HPP
 
+#ifdef HEX_LOGGING // LOG
+
+    // Include hex::core::debug
+    #ifndef HEX_CORE_CFG_DEBUG_HPP
+        #include <hex/core/cfg/hex_debug.hpp>
+    #endif /// !HEX_CORE_CFG_DEBUG_HPP
+
+#endif // LOG
+
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 // GLProgram
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -45,7 +54,9 @@ namespace hex
                 shaderType,
                 sourceFile,
                 sourceCode
-            )
+            ),
+            mShadersMutex(),
+            mShaders()
         {
         }
 
@@ -54,6 +65,23 @@ namespace hex
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         GLProgram::~GLProgram() noexcept = default;
+
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        // Shader: PUBLIC GETTERS & SETTERS
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+        void GLProgram::setShader(hexShared<Shader>& pShader)
+        {
+#ifdef HEX_DEBUG // DEBUG
+            assert(pShader.get() && "GLProgram::setShader: shader is null");
+#endif // DEBUG
+
+            hexLock lock(mShadersMutex);
+
+            mShaders[pShader->getShaderType()] = hexShared<hexGLShader>(
+                static_cast<hexGLShader*>(pShader.get())
+            );
+        }
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
