@@ -23,6 +23,9 @@ set( HEX_GL_HEADERS
     # RENDER
     "${HEX_GL_PUBLIC}render/GLState.hpp"
     "${HEX_GL_PUBLIC}render/GLRenderer.hpp"
+    # ASSETS
+    "${HEX_GL_PUBLIC}assets/GLProgram.hpp"
+    "${HEX_GL_PUBLIC}assets/GLShader.hpp"
 )
 
 # Append to Exportable Headers
@@ -37,6 +40,9 @@ set( HEX_GL_SOURCES
     # RENDER
     "${HEX_GL_PRIVATE}render/GLState.cpp"
     "${HEX_GL_PRIVATE}render/GLRenderer.cpp"
+    # ASSETS
+    "${HEX_GL_PRIVATE}assets/GLProgram.cpp"
+    "${HEX_GL_PRIVATE}assets/GLShader.cpp"
 )
 
 # Append to Exportable Sources

@@ -24,6 +24,16 @@
     #include <hex/core/render/IRendererListener.hxx>
 #endif /// !HEX_CORE_I_RENDERER_LISTENER_HXX
 
+// Include hex::gl::GLShader
+#ifndef HEX_GL_SHADER_HPP
+    #include <hex/gl/assets/GLShader.hpp>
+#endif /// !HEX_GL_SHADER_HPP
+
+// Include hex::gl::GLProgram
+#ifndef HEX_GL_PROGRAM_HPP
+    #include <hex/gl/assets/GLProgram.hpp>
+#endif /// !HEX_GL_PROGRAM_HPP
+
 #ifdef HEX_LOGGING // LOG
 
     // Include hex::core::debug
@@ -116,6 +126,44 @@ namespace hex
                 listenerIndex++;
                 listener_ptr = getNextListener(listenerIndex).get();
             }
+        }
+
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        // IRenderer: PUBLIC METHODS
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+        hexShared<hexShader> GLRenderer::createShader(
+            const hexString name,
+            const unsigned char shaderType,
+            const hexString* const sourceFile,
+            const hexString* const sourceCode
+        ) {
+            hexShader* shader(nullptr);
+
+            if (shaderType == static_cast<unsigned char>(hexEShaderType::PROGRAM))
+            {
+                hexGLProgram* const glProgram_ptr( new hexGLProgram(
+                    name,
+                    shaderType,
+                    sourceFile,
+                    sourceCode
+                ) );
+
+                shader = static_cast<hexShader*>(glProgram_ptr);
+            }
+            else
+            {
+                hexGLShader* const glShader_ptr( new hexGLShader(
+                    name,
+                    shaderType,
+                    sourceFile,
+                    sourceCode
+                ) );
+
+                shader = static_cast<hexShader*>(glShader_ptr);
+            }
+
+            return hexShared<hexShader>(shader);
         }
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

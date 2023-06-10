@@ -8,8 +8,8 @@
  * SOFTWARE.
 **/
 
-#ifndef HEX_GL_RENDERER_HPP
-#define HEX_GL_RENDERER_HPP
+#ifndef HEX_GL_PROGRAM_HPP
+#define HEX_GL_PROGRAM_HPP
 
 // = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
@@ -17,10 +17,10 @@
 // INCLUDES
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-// Include hex::core::RenderSystem
-#ifndef HEX_CORE_RENDER_SYSTEM_HPP
-    #include <hex/core/render/RenderSystem.hpp>
-#endif /// !HEX_CORE_RENDER_SYSTEM_HPP
+// Include hex::core::Shader
+#ifndef HEX_CORE_SHADER_HPP
+    #include <hex/core/assets/Shader.hpp>
+#endif /// !HEX_CORE_SHADER_HPP
 
 // Include hex::gl
 #ifndef HEX_GL_CFG_HPP
@@ -28,7 +28,7 @@
 #endif /// !HEX_GL_CFG_HPP
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-// GLRenderer
+// GLProgram
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 namespace hex
@@ -39,7 +39,7 @@ namespace hex
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        HEX_API class GLRenderer final : public hexRenderer
+        HEX_API class GLProgram final : public hexShader
         {
 
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -57,46 +57,13 @@ namespace hex
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-            // FIELDS
-            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-            bool mIsFirstFrame;
-
-            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-            // CONSTRUCTOR
-            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-            explicit GLRenderer();
-
-            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-            // METHODS
-            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-            void stopRenderer() noexcept;
-
-            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
             // DELETED
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-            GLRenderer(const GLRenderer&)            = delete;
-            GLRenderer& operator=(const GLRenderer&) = delete;
-            GLRenderer(GLRenderer&&)                 = delete;
-            GLRenderer& operator=(GLRenderer&&)      = delete;
-
-            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-        protected:
-
-            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-            // OVERRIDE.ISystem
-            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-            virtual bool onStart()  final;
-            virtual bool onResume() final;
-            virtual void onPause()  final;
-            virtual void onStop()   final;
+            GLProgram(const GLProgram&)            = delete;
+            GLProgram& operator=(const GLProgram&) = delete;
+            GLProgram(GLProgram&&)                 = delete;
+            GLProgram& operator=(GLProgram&&)      = delete;
 
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -105,29 +72,21 @@ namespace hex
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-            // DESTRUCTOR
+            // CONSTRUCTORS
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-            virtual ~GLRenderer() noexcept;
-
-            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-            // METHODS
-            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-            static void Initialize();
-
-            void Draw();
-
-            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-            // IRenderer: METHODS
-            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-            virtual hexShared<hexShader> createShader(
+            explicit GLProgram(
                 const hexString name,
                 const unsigned char shaderType,
                 const hexString* const sourceFile,
                 const hexString* const sourceCode
-            ) final;
+            );
+
+            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+            // DESTRUCTOR
+            // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+            virtual ~GLProgram() noexcept;
 
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -139,8 +98,8 @@ namespace hex
 
 }
 
-using hexGLRenderer = hex::gl::GLRenderer;
+using hexGLProgram = hex::gl::GLProgram;
 
 // = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
-#endif /// !HEX_GL_RENDERER_HPP
+#endif /// !HEX_GL_PROGRAM_HPP
