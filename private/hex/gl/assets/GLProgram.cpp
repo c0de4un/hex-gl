@@ -55,7 +55,6 @@ namespace hex
                 sourceFile,
                 sourceCode
             ),
-            mShadersMutex(),
             mShaders()
         {
         }
@@ -64,7 +63,10 @@ namespace hex
         // DESTRUCTOR
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-        GLProgram::~GLProgram() noexcept = default;
+        GLProgram::~GLProgram() noexcept
+        {
+            handleUnload();
+        }
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         // Shader: PUBLIC GETTERS & SETTERS
@@ -76,11 +78,71 @@ namespace hex
             assert(pShader.get() && "GLProgram::setShader: shader is null");
 #endif // DEBUG
 
-            hexLock lock(mShadersMutex);
-
             mShaders[pShader->getShaderType()] = hexShared<hexGLShader>(
                 static_cast<hexGLShader*>(pShader.get())
             );
+        }
+
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        // GLProgram: METHODS
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+        void GLProgram::handleUnload()
+        {
+            const auto end_iter(mShaders.cend());
+            auto       iter(mShaders.begin());
+            while (iter != end_iter)
+            {
+                iter->second->Unload();
+
+                glDeleteShader(iter->second->getGLShaderID());
+            }
+
+            glDeleteProgram(mProgramID);
+        }
+
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        // Asset: PROTECTED METHODS
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+        bool GLProgram::onLoad()
+        {
+#ifdef HEX_DEBUG // DEBUG
+            assert(mShaders.size() && "GLProgram::onLoad: no shaders attached");
+#endif // DEBUG
+
+            const auto end_iter(mShaders.cend());
+            auto       iter(mShaders.begin());
+            while (iter != end_iter)
+            {
+                if (!iter->second->Load())
+                {
+#ifdef HEX_LOGGING // LOG
+                    hexString logMsg("GLProgram::onLoad: failed to load Shader #");
+                    logMsg += iter->second->mName;
+                    hexLog::Error(logMsg.c_str());
+#endif // LOG
+
+                    return false;
+                }
+
+                iter++;
+            }
+
+            mProgramID = glCreateProgram();
+
+            iter = mShaders.begin();
+            while (iter != end_iter)
+            {
+                glAttachShader(mProgramID, iter->second->getGLShaderID());
+            }
+
+            return false;
+        }
+
+        void GLProgram::onUnload()
+        {
+            handleUnload();
         }
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

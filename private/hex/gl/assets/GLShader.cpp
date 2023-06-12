@@ -56,7 +56,8 @@ namespace hex
                 shaderType,
                 sourceFile,
                 sourceCode
-            )
+            ),
+            mShaderID(0)
         {
         }
 
@@ -65,6 +66,15 @@ namespace hex
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         GLShader::~GLShader() noexcept = default;
+
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        // PUBLIC GETTERS & SETTERS
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+        GLint GLShader::getGLShaderID() const noexcept
+        {
+            return mShaderID;
+        }
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
